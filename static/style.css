@@ -5,3 +5,9 @@
 .card-header {
     text-align: center;
 }
+
+.cameras {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}

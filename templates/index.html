@@ -19,11 +19,26 @@
         <div class="container">
             <div class="card">
                 <div class="card-header">Real-Time Display Basler Camera </div>
-                <div class="card-camera">
-                    <div>
-                        <img src="{{ url_for('video') }}" class="corner" />
+                <div class="cameras">
+                    {% for camera in cameras %}
+                    <div class="card-camera">
+                        <div>
+                            <img src="{{ url_for('video', camera_index=camera['camera_index']) }}" class="corner" />
+                        </div>
+                        <div>
+                            <!-- Camera settings forms for each camera -->
+                            <form method="POST" action="/width1">
+                                <input type="hidden" name="camera_index" value="{{ camera['camera_index'] }}" />
+                                <!-- Add other settings inputs here -->
+                                <label for="text_width">Width</label>
+                                <input type="text" name="text_width" id="text_width" />
+                                <input type="submit" value="Change" />
+                            </form>
+                        </div>
                     </div>
+                    {% endfor %}
                 </div>
+
             </div>
             <div class="card-footer"></div>
         </div>
