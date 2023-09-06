@@ -1,4 +1,4 @@
-    # Basler Camera Hardware Trigger Setup
+# Basler Camera Hardware Trigger Setup
 
 This guide provides step-by-step instructions for setting up and running Basler cameras with a hardware trigger for synchronized recording. Please follow these guidelines carefully to ensure a successful setup.
 
@@ -7,15 +7,15 @@ This guide provides step-by-step instructions for setting up and running Basler 
 Before you begin, make sure you have the following prerequisites:
 
 - **Basler Cameras:** Ensure that you have the Basler cameras you intend to use with the hardware trigger.
-- **Hardware Trigger:** You should have the hardware trigger device compatible with Basler cameras.
+- **Hardware Trigger:** You should have the hardware trigger device.
 - **USB 3.1 Port:** Your laptop or computer must have USB 3.1 ports to connect the cameras.
 
 ## Hardware Trigger Setup
 
-1. **Connect Cameras:** Connect the Basler cameras to the hardware trigger using the provided cables. Pay attention to the color-coding on the hardware trigger to identify where to plug in each cable. Typically, you will have a blue and white pin, and the hardware trigger should indicate where each cable goes.
+1. **Connect Cameras:** Connect the Basler cameras to the hardware trigger using the provided cables. Pay attention to the color-coding on the hardware trigger to identify where to plug in each cable. You will have a blue and white pin, and the hardware trigger should indicate where each cable goes.
 
 2. **Configure Trigger Settings:**
-   - **Frequency (FREQ):** Adjust the frequency setting as needed. The maximum synchronization frequency depends on the capabilities of your hardware, but it's typically in the range of 150-155 frames per second (fps).
+   - **Frequency (FREQ):** Adjust the frequency setting as needed. The maximum synchronization frequency is 150-155 frames per second (fps).
    - **Duty Cycle (DUTY):** Keep the duty cycle between 10% and 30% for optimal performance.
 
 ## Software Setup
@@ -39,11 +39,6 @@ After creating and activating your Conda environment, install the required Pytho
 ```bash
 pip install -r requirements.txt
 ```
-
-## Connecting Cameras
-
-Connect Cameras: Connect the Basler cameras to the hardware trigger using the provided cables. Pay attention to the color-coding on the hardware trigger to identify where to plug in each cable. Typically, you will have a blue and white pin, and the hardware trigger should indicate where each cable goes.
-
 
 ## Starting the Code
 - Run the Code: After completing the installation and camera connection, you can now start the Python code to control and record from the connected Basler cameras. Make sure to start the code in the Conda environment you created earlier.
