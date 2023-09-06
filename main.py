@@ -1,18 +1,15 @@
 from flask import Flask, render_template, Response, request
 import cv2
-from multi_normal  import CameraManager # Import your CameraManager class
 import pypylon.pylon as py
 import sys
 import signal
+
 app = Flask(__name__)
 
-# Initialize the camera manager
-# max_number_cameras = 3
-# camera_manager = CameraManager(max_number_cameras)
-# camera_manager.initialize_cameras()
-
+# Initialize the camera
 icam = py.InstantCamera(py.TlFactory.GetInstance().CreateFirstDevice())
 icam.Open()
+
 
 def signal_handler(sig, frame):
     global icam
@@ -20,27 +17,32 @@ def signal_handler(sig, frame):
     icam.Close()
     sys.exit(0)
 
+
 signal.signal(signal.SIGINT, signal_handler)
+
 
 @app.route('/')
 def index():
-    current_w = icam.Width.GetValue()
-    current_h = icam.Height.GetValue()
-
-
-    current_exposure  = icam.ExposureTime.GetValue()
-    max_exposure = icam.ExposureTime.GetMax()
-    min_exposure = icam.ExposureTime.GetMin()
-
-    return render_template('index.html', current_w=current_w, current_h=current_h, current_exp=current_exposure, max_exp=max_exposure, min_exp=min_exposure)  # Create an HTML template for displaying the video feed
+    camera_info = {
+        'current_w': icam.Width.GetValue(),
+        'current_h': icam.Height.GetValue(),
+        'max_gain': icam.Gain.GetMax(),
+        'min_gain': icam.Gain.GetMin(),
+        "current_gain": icam.Gain.GetValue(),
+        'current_exp': icam.ExposureTime.GetValue(),
+        'max_exp': icam.ExposureTime.GetMax(),
+        'min_exp': icam.ExposureTime.GetMin(),
+        "pixel_format": icam.PixelFormat.GetValue()
+    }
+    return render_template('index.html', **camera_info)
 
 
 def gen():
-  while True:
-        image = icam.GrabOne(4000) ### 4ms time for grabbing image 
+    while True:
+        image = icam.GrabOne(4000)
         image = image.Array
-        image = cv2.resize(image, (0,0), fx=0.8366, fy=1, interpolation=cv2.INTER_LINEAR)### 2048x2048 resolution or INTER_AREA  inter_linear is fastest for and good for downsizing 
-        ret, jpeg = cv2.imencode('.jpg', image)    
+        image = cv2.resize(image, (0, 0), fx=0.8366, fy=1, interpolation=cv2.INTER_LINEAR)
+        ret, jpeg = cv2.imencode('.jpg', image)
         frame = jpeg.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type:image/jpeg\r\n'
@@ -48,82 +50,74 @@ def gen():
                b'\r\n' + frame + b'\r\n')
 
 
-
 @app.route('/video')
 def video():
-    """Video streaming route. Put this in the src attribute of an img tag."""
+    return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-    return Response(gen(),
-                        mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/width1', methods=['POST', "GET"])
+@app.route('/width1', methods=['POST'])
 def width():
     if request.method == 'POST':
-        # Access the form data using request.form
         width = request.form.get('text_width')
-        print(type(width))
-        # Process the form data as needed
-        # ...
         icam.StopGrabbing()
         icam.Width.SetValue(int(width))
+    return index()
+    # return render_template("index.html")
 
-        # Redirect or render a response
-    return render_template("index.html")
 
-@app.route('/height1', methods=['POST', "GET"])
+@app.route('/height1', methods=['POST'])
 def height():
     if request.method == 'POST':
-        # Access the form data using request.form
         height = request.form.get('text_height')
-        print(type(height))
-        # Process the form data as needed
-        # ...
         icam.StopGrabbing()
         icam.Height.SetValue(int(height))
-
-        # Redirect or render a response
-    return render_template("index.html")
+    return index()
 
 
-# create a reverseX endpoint
-@app.route('/reverseX', methods=['GET', 'POST'])
-def reverseX():
+@app.route('/reverseX', methods=['POST'])
+def reverse_x():
     ss = icam.ReverseX.Value
     if request.method == 'POST':
         r = request.form.get('text_reverseX')
         icam.StopGrabbing()
-        icam.ReverseX.SetValue(r == 'True')
+        icam.ReverseX.SetValue(r == 'on')
         ss = icam.ReverseX.Value
-    return render_template('index.html',result = ss)
+    return index()
 
 
-# create a reverseY endpoint
-@app.route('/reverseY', methods=['GET', 'POST'])
-def reverseY():
+@app.route('/reverseY', methods=['POST'])
+def reverse_y():
     ss = icam.ReverseY.Value
     if request.method == 'POST':
         r = request.form.get('text_reverseY')
         icam.StopGrabbing()
-        icam.ReverseY.SetValue(r == 'True')
+        icam.ReverseY.SetValue(r == 'on')
         ss = icam.ReverseY.Value
-    return render_template('index.html',result = ss)
+    return index()
 
 
-@app.route('/exposure', methods=['GET', 'POST'])
+@app.route('/exposure', methods=['POST'])
 def exposure():
     ss = icam.ExposureTime.Value
-    max = icam.ExposureTime.GetMax()
+    max_exposure = icam.ExposureTime.GetMax()
     if request.method == 'POST':
-       # print(request.form.get('text_exposure'))
         r = int(request.form.get('text_exposure'))
-        if r < max:
+        if r < max_exposure:
             icam.StopGrabbing()
             icam.ExposureTime.SetValue(r)
             ss = icam.ExposureTime.Value
-    return render_template('index.html',result = ss, max = max)
+    return index()
 
-# create a pixel format
-@app.route('/pixelFormat', methods=['GET', 'POST'])
+
+@app.route('/gain', methods=['POST'])
+def gain():
+    if request.method == 'POST':
+        r = int(request.form.get('text_gain'))
+        icam.Gain.SetValue(r)
+    return index()
+
+
+@app.route('/pixelFormat', methods=['POST'])
 def pixel_format():
     ss = icam.PixelFormat.Value
     if request.method == 'POST':
@@ -131,7 +125,8 @@ def pixel_format():
         icam.StopGrabbing()
         icam.PixelFormat.SetValue(r)
         ss = icam.PixelFormat.Value
-    return render_template('index.html',result = ss)
+    return index()
+
+
 if __name__ == "__main__":
     app.run(debug=True)
-

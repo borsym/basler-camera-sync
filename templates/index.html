@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/style.css">
 
     <title>Video Feed</title>
-    
+
 </head>
+
 <body>
     <h1>Camera Feed</h1>
     <!-- <div class="video-container">
@@ -16,78 +18,101 @@
     <section>
         <div class="container">
             <div class="card">
-              <div class="card-header">Real-Time Display Basler Camera </div>
-              <div class="card-camera">
-                <div>
-                    <img src="{{ url_for('video') }}" class="corner" />
+                <div class="card-header">Real-Time Display Basler Camera </div>
+                <div class="card-camera">
+                    <div>
+                        <img src="{{ url_for('video') }}" class="corner" />
+                    </div>
                 </div>
-              </div>
-              <!-- <form method="POST" action="" name="exposure" id="exposure">
-                <input type="text" name="longitude" id="longitude" />
-                <input type="submit" value="Submit" />
-            </form> -->
-              </div> 
-              <div class="card-footer"></div>
             </div>
-          </div>
-     
+            <div class="card-footer"></div>
+        </div>
+        </div>
+
     </section>
 
     <div class="container">
         <h1>Settings</h1>
         <div class="card">
-       
-                <table>
-                    <tr>
-                        <td>
-                            <p>max width: {{ current_w }}</p>
-                            <p>max height: {{ current_h }}</p>
-                            w
-                            <form method="POST" action="/width1">
-                                <input type="text" name="text_width" id="text_width" />
-                                <input type="submit" value="Change" />
-                            </form>
-                            h
-                            <form method="POST" action="/height1">
-                                <input type="text" name="text_height" id="text_height" />
-                                <input type="submit" value="Change" />
-                            </form>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <p>min: {{min_exp}}</p>
-                            <p>max: {{max_exp}} </p>
-                            <p>exposure: {{ current_exp }}</p>
-                            <form method="POST" action="/exposure" id="exposure" name="exposure">
-                                <input type="text" name="text_exposure" id="text_exposure" />
-                                <input type="submit" value="Change" />
-                            </form>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            reverse X
-                            <form method="POST" action="/reverseX" id="reverseX" name="reverseX">
-                                <input type="text" name="text_reverseX" id="text_reverseX" />
-                                <input type="submit" value="Change"/>
-                            </form>
-                        </td>
-                        <td>
-                            reverse Y
-                            <form method="POST" action="/reverseY" id="reverseY" name="reverseY">
-                                <input type="text" name="text_reverseY" id="text_reverseY"/>
-                                <input type="submit" value="Change"/>
-                            </form>
-                        </td>
-                    </tr>
-                    <tr>
-                        pixel format
+
+            <table>
+                <tr>
+                    <td>
+                        <p>max width: {{ current_w }}</p>
+                        <p>max height: {{ current_h }}</p>
+                        width
+                        <form method="POST" action="/width1">
+                            <input type="text" name="text_width" id="text_width" />
+                            <input type="submit" value="Change" />
+                        </form>
+                        height
+                        <form method="POST" action="/height1">
+                            <input type="text" name="text_height" id="text_height" />
+                            <input type="submit" value="Change" />
+                        </form>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p>min: {{min_exp}}</p>
+                        <p>max: {{max_exp}} </p>
+                        <p>exposure: {{ current_exp }}</p>
+                        <form method="POST" action="/exposure" id="exposure" name="exposure">
+                            <input type="text" name="text_exposure" id="text_exposure" />
+                            <input type="submit" value="Change" />
+                        </form>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <form method="POST" action="/reverseX" id="reverseX" name="reverseX">
+                            <label for="reverseX">Reverse X</label>
+                            <input type="checkbox" name="text_reverseX" id="text_reverseX" />
+                            <input type="submit" value="Change" />
+                        </form>
+                    </td>
+                    <td>
+                        <form method="POST" action="/reverseY" id="reverseY" name="reverseY">
+                            <label for="reverseX">Reverse Y</label>
+                            <input type="checkbox" name="text_reverseY" id="text_reverseY" />
+                            <input type="submit" value="Change" />
+                        </form>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p>pixel format: {{pixel_format}}</p>
                         <form method="POST" action="/pixelFormat" id="pixel_format" name="pixel_format">
-                            <input type="text" name="text_pixel_format" id="text_pixel_format"/>
-                            <input type="submit" value="Change"/>
-                    </tr>
-                </table>
+
+
+                            <label for="pixel_format">Pixel Format</label>
+                            <select name="text_pixel_format" id="text_pixel_format">
+                                <option value="Mono12">Mono12</option>
+                                <option value="Mono10">Mono10</option>
+                                <option value="Mono8">Mono8</option>
+                                <option value="RGB8">RGB8</option>
+                                <option value="BGR8">BGR8</option>
+                                <option value="BayerRG8">BayerRG8</option>
+                                <option value="BayerRG10">BayerRG10</option>
+                                <option value="BayerRG12">BayerRG12</option>
+                            </select>
+                            <input type="submit" value="Change" />
+                        </form>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p>gain</p>
+                        <p>max {{max_gain}}</p>
+                        <p>min {{min_gain}}</p>
+                        <p>current {{current_gain}} </p>
+                        <form method="POST" action="/gain" id="gain" name="gain">
+                            <input type="text" name="text_gain" id="text_gain" />
+                            <input type="submit" value="Change" />
+                        </form>
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
 
@@ -102,4 +127,5 @@
         video.height = 480;
     </script>
 </body>
+
 </html>
