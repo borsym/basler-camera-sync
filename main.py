@@ -6,9 +6,6 @@ import signal
 
 app = Flask(__name__)
 
-# Initialize the camera
-# icam = py.InstantCamera(py.TlFactory.GetInstance().CreateFirstDevice())
-# icam.Open()
 
 tlFactory = py.TlFactory.GetInstance()
 devices = tlFactory.EnumerateDevices()
@@ -18,7 +15,6 @@ for i, camera in enumerate(cameras):
     camera.Attach(tlFactory.CreateDevice(devices[i]))
 
 cameras.Open()
-print("open")
 
 def signal_handler(sig, frame):
     global cameras
@@ -32,19 +28,6 @@ signal.signal(signal.SIGINT, signal_handler)
 
 @app.route('/')
 def index():
-    # icam = cameras[0]
-    # camera_info = {
-    #     'current_w': icam.Width.GetValue(),
-    #     'current_h': icam.Height.GetValue(),
-    #     'max_gain': icam.Gain.GetMax(),
-    #     'min_gain': icam.Gain.GetMin(),
-    #     "current_gain": icam.Gain.GetValue(),
-    #     'current_exp': icam.ExposureTime.GetValue(),
-    #     'max_exp': icam.ExposureTime.GetMax(),
-    #     'min_exp': icam.ExposureTime.GetMin(),
-    #     "pixel_format": icam.PixelFormat.GetValue()
-    # }
-    # return render_template('index.html', **camera_info)
     camera_info = []
     for i, icam in enumerate(cameras):
         info = {
