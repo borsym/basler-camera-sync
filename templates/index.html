@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+
+    <title>Video Feed</title>
+    
+</head>
+<body>
+    <h1>Camera Feed</h1>
+    <!-- <div class="video-container">
+        <video id="video" autoplay></video>
+    </div> -->
+    <section>
+        <div class="container">
+            <div class="card">
+              <div class="card-header">Real-Time Display Basler Camera </div>
+              <div class="card-camera">
+                <div>
+                    <img src="{{ url_for('video') }}" class="corner" />
+                </div>
+              </div>
+              <!-- <form method="POST" action="" name="exposure" id="exposure">
+                <input type="text" name="longitude" id="longitude" />
+                <input type="submit" value="Submit" />
+            </form> -->
+              </div> 
+              <div class="card-footer"></div>
+            </div>
+          </div>
+     
+    </section>
+
+    <div class="container">
+        <h1>Settings</h1>
+        <div class="card">
+       
+                <table>
+                    <tr>
+                        <td>
+                            <p>max width: {{ current_w }}</p>
+                            <p>max height: {{ current_h }}</p>
+                            w
+                            <form method="POST" action="/width1">
+                                <input type="text" name="text_width" id="text_width" />
+                                <input type="submit" value="Change" />
+                            </form>
+                            h
+                            <form method="POST" action="/height1">
+                                <input type="text" name="text_height" id="text_height" />
+                                <input type="submit" value="Change" />
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>min: {{min_exp}}</p>
+                            <p>max: {{max_exp}} </p>
+                            <p>exposure: {{ current_exp }}</p>
+                            <form method="POST" action="/exposure" id="exposure" name="exposure">
+                                <input type="text" name="text_exposure" id="text_exposure" />
+                                <input type="submit" value="Change" />
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            reverse X
+                            <form method="POST" action="/reverseX" id="reverseX" name="reverseX">
+                                <input type="text" name="text_reverseX" id="text_reverseX" />
+                                <input type="submit" value="Change"/>
+                            </form>
+                        </td>
+                        <td>
+                            reverse Y
+                            <form method="POST" action="/reverseY" id="reverseY" name="reverseY">
+                                <input type="text" name="text_reverseY" id="text_reverseY"/>
+                                <input type="submit" value="Change"/>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        pixel format
+                        <form method="POST" action="/pixelFormat" id="pixel_format" name="pixel_format">
+                            <input type="text" name="text_pixel_format" id="text_pixel_format"/>
+                            <input type="submit" value="Change"/>
+                    </tr>
+                </table>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+
+        // Replace the 'src' attribute with the video feed URL
+        // video.src = "/video_feed/0"; // Change the camera_index to the desired camera
+
+        // You can adjust the video size and other settings here
+        video.width = 640;
+        video.height = 480;
+    </script>
+</body>
+</html>

@@ -44,6 +44,16 @@ class CameraManager:
             camera.PixelFormat.SetValue("RGB8")
             camera.StreamGrabber.MaxTransferSize = 4194304
     
+    def get_frame(self, camera_index):
+        if camera_index < 0 or camera_index >= self.number_of_cameras:
+            raise ValueError("Invalid camera index")
+
+        try:
+            image, _ = self.image_queues[camera_index].get(timeout=1)
+            return image
+        except queue.Empty:
+            return None
+        
     def start_grabbing(self):
         if not self.cameras:
             raise RuntimeError("Cameras not initialized.")
@@ -103,7 +113,7 @@ class CameraManager:
         cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    max_number_cameras = 2
+    max_number_cameras = 3
     camera_manager = CameraManager(max_number_cameras)
     camera_manager.initialize_cameras()
     camera_manager.run()
