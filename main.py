@@ -91,7 +91,6 @@ def width():
         icam.StopGrabbing()
         icam.Width.SetValue(int(width))
     return index()
-    # return render_template("index.html")
 
 
 @app.route('/height1', methods=['POST'])
@@ -107,46 +106,42 @@ def height():
 
 @app.route('/reverseX', methods=['POST'])
 def reverse_x():
-    icam = cameras[0]
-    ss = icam.ReverseX.Value
     if request.method == 'POST':
+        camera_index = int(request.form.get('camera_index'))
+        icam = cameras[camera_index]
         r = request.form.get('text_reverseX')
         icam.StopGrabbing()
         icam.ReverseX.SetValue(r == 'on')
-        ss = icam.ReverseX.Value
     return index()
 
 
 @app.route('/reverseY', methods=['POST'])
 def reverse_y():
-    icam = cameras[0]
-    ss = icam.ReverseY.Value
     if request.method == 'POST':
+        camera_index = int(request.form.get('camera_index'))
+        icam = cameras[camera_index]
         r = request.form.get('text_reverseY')
         icam.StopGrabbing()
         icam.ReverseY.SetValue(r == 'on')
-        ss = icam.ReverseY.Value
     return index()
 
 
 @app.route('/exposure', methods=['POST'])
 def exposure():
-    icam = cameras[0]
-    ss = icam.ExposureTime.Value
-    max_exposure = icam.ExposureTime.GetMax()
     if request.method == 'POST':
+        camera_index = int(request.form.get('camera_index'))
+        icam = cameras[camera_index]
         r = int(request.form.get('text_exposure'))
-        if r < max_exposure:
-            icam.StopGrabbing()
-            icam.ExposureTime.SetValue(r)
-            ss = icam.ExposureTime.Value
+        icam.StopGrabbing()
+        icam.ExposureTime.SetValue(r)
     return index()
 
 
 @app.route('/gain', methods=['POST'])
 def gain():
-    icam = cameras[0]
     if request.method == 'POST':
+        camera_index = int(request.form.get('camera_index'))
+        icam = cameras[camera_index]
         r = int(request.form.get('text_gain'))
         icam.Gain.SetValue(r)
     return index()
@@ -154,9 +149,9 @@ def gain():
 
 @app.route('/pixelFormat', methods=['POST'])
 def pixel_format():
-    icam = cameras[0]
-    ss = icam.PixelFormat.Value
     if request.method == 'POST':
+        camera_index = int(request.form.get('camera_index'))
+        icam = cameras[camera_index]
         r = request.form.get('text_pixel_format')
         icam.StopGrabbing()
         icam.PixelFormat.SetValue(r)
