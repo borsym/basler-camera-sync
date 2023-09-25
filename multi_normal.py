@@ -5,10 +5,10 @@ from imageio import get_writer
 from threading import Thread
 import queue
 import pathlib
+import time
+import math
 
-#todo create the folder if not exists
-# flask app
-# in the flask app person can change the expo, image quality, etc
+# TODO ne zarjam be 
 
 
 class CameraManager:
@@ -18,6 +18,8 @@ class CameraManager:
         self.image_queues = []
         self.saver_threads = []
         self.number_of_cameras = None
+        self.duration = None
+        self.fps = 100
 
     def initialize_cameras(self):
         tlFactory = pylon.TlFactory.GetInstance()
@@ -94,21 +96,49 @@ class CameraManager:
         self.create_folder()
         self.start_grabbing()
         self.start_saver_threads()
-
-        while True: #any(camera.IsGrabbing() for camera in self.cameras):
-            for i, camera in enumerate(self.cameras):
-                grab_result = camera.RetrieveResult(1000, pylon.TimeoutHandling_ThrowException)
-    
-                if grab_result.GrabSucceeded():
-                    image = cv2.cvtColor(grab_result.GetArray(), cv2.COLOR_BGR2RGB)
-                    camera_context_value = grab_result.GetCameraContext()
-                    image_filename = f"cam_{i}/image_{camera_context_value}_{grab_result.ImageNumber}.png"
-                    self.image_queues[i].put((image, image_filename))
+        start = time.time()
+        try:
+            while True: #any(camera.IsGrabbing() for camera in self.cameras):
+                for i, camera in enumerate(self.cameras):
+                    grab_result = camera.RetrieveResult(1000, pylon.TimeoutHandling_ThrowException)
+        
+                    if grab_result.GrabSucceeded():
+                        image = cv2.cvtColor(grab_result.GetArray(), cv2.COLOR_BGR2RGB)
+                        camera_context_value = grab_result.GetCameraContext()
+                        image_filename = f"cam_{i}/image_{camera_context_value}_{grab_result.ImageNumber}.png"
+                        self.image_queues[i].put((image, image_filename))
+                
+                # If ESC is pressed, exit and destroy the window
+                # cv2.imshow('Acquisition', np.hstack([self.cameras[i].RetrieveResult(5000).GetArray() for i in range(self.number_of_cameras)]))
+                if cv2.waitKey(1) & 0xFF == 27:
+                    end = time.time()
+                    print(f"elapsed time: {end - start}")
+                    break
+        except KeyboardInterrupt:
+            print("Keyboard interrupt")
+        except pylon.TimeoutException:
+            print("Timeout error")
+        finally:
+            end = time.time()
+            self.duration = end - start
+            print(f"elapsed time: {self.duration}")
             
-            # If ESC is pressed, exit and destroy the window
-            # cv2.imshow('Acquisition', np.hstack([self.cameras[i].RetrieveResult(5000).GetArray() for i in range(self.number_of_cameras)]))
-            if cv2.waitKey(1) & 0xFF == 27:
-                break
+            for camera in self.cameras:
+                camera.StopGrabbing()
+            # list how many images does the folder contain
+            for i in range(self.number_of_cameras):
+                print("expected number of images: ", math.floor(self.fps * self.duration))
+                number_of_images = len(list(pathlib.Path(f'cam_{i}').glob('*.png')))
+                print(f"cam_{i} has {number_of_images} images")
+                cnt = 0
+                while cnt < 36 and number_of_images != math.floor(self.fps * self.duration):
+                    time.sleep(5)
+                    cnt += 1
+                    number_of_images = len(list(pathlib.Path(f'cam_{i}').glob('*.png')))
+                    print(f"cam_{i} has {number_of_images} images")
+                
+
+            
 
         cv2.destroyAllWindows()
 
