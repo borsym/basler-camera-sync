@@ -7,6 +7,7 @@ import queue
 import pathlib
 import time
 import math
+from PIL import Image
 
 # TODO ne zarjam be 
 
@@ -19,7 +20,9 @@ class CameraManager:
         self.saver_threads = []
         self.number_of_cameras = None
         self.duration = None
-        self.fps = 100
+        self.fps = 30
+        self.start = int(time.time())
+
 
     def initialize_cameras(self):
         tlFactory = pylon.TlFactory.GetInstance()
@@ -75,7 +78,8 @@ class CameraManager:
         while True:
             try:
                 image, filename = image_queue.get(timeout=1)
-                cv2.imwrite(filename, image)
+                cv2.imwrite(filename, image, [cv2.IMWRITE_JPEG_QUALITY, 40])
+                # image.save(filename)
             except queue.Empty:
                 pass
     
@@ -88,7 +92,7 @@ class CameraManager:
 
     def create_folder(self):
         for i in range(self.number_of_cameras):
-            pathlib.Path(f"cam_{i}").mkdir(parents=True, exist_ok=True)
+            pathlib.Path(f"cam_{i}_{self.start}").mkdir(parents=True, exist_ok=True)
 
     def run(self):
         # cv2.namedWindow('Acquisition', cv2.WINDOW_NORMAL)
@@ -96,23 +100,27 @@ class CameraManager:
         self.create_folder()
         self.start_grabbing()
         self.start_saver_threads()
-        start = time.time()
         try:
             while True: #any(camera.IsGrabbing() for camera in self.cameras):
                 for i, camera in enumerate(self.cameras):
                     grab_result = camera.RetrieveResult(1000, pylon.TimeoutHandling_ThrowException)
         
                     if grab_result.GrabSucceeded():
+                        # img_byte = grab_result.GetArray()
+                        # use pillow
+                        # image = Image.fromarray(np.frombuffer(img_byte), 'RGB')
+
+
                         image = cv2.cvtColor(grab_result.GetArray(), cv2.COLOR_BGR2RGB)
                         camera_context_value = grab_result.GetCameraContext()
-                        image_filename = f"cam_{i}/image_{camera_context_value}_{grab_result.ImageNumber}.png"
+                        image_filename = f"cam_{i}_{self.start}/image_{camera_context_value}_{grab_result.ImageNumber}.png"
                         self.image_queues[i].put((image, image_filename))
                 
                 # If ESC is pressed, exit and destroy the window
                 # cv2.imshow('Acquisition', np.hstack([self.cameras[i].RetrieveResult(5000).GetArray() for i in range(self.number_of_cameras)]))
                 if cv2.waitKey(1) & 0xFF == 27:
                     end = time.time()
-                    print(f"elapsed time: {end - start}")
+                    print(f"elapsed time: {end - self.start}")
                     break
         except KeyboardInterrupt:
             print("Keyboard interrupt")
@@ -120,7 +128,7 @@ class CameraManager:
             print("Timeout error")
         finally:
             end = time.time()
-            self.duration = end - start
+            self.duration = end - self.start
             print(f"elapsed time: {self.duration}")
             
             for camera in self.cameras:
@@ -128,13 +136,13 @@ class CameraManager:
             # list how many images does the folder contain
             for i in range(self.number_of_cameras):
                 print("expected number of images: ", math.floor(self.fps * self.duration))
-                number_of_images = len(list(pathlib.Path(f'cam_{i}').glob('*.png')))
+                number_of_images = len(list(pathlib.Path(f'cam_{i}_{self.start}').glob('*.png')))
                 print(f"cam_{i} has {number_of_images} images")
                 cnt = 0
-                while cnt < 36 and number_of_images != math.floor(self.fps * self.duration):
+                while cnt < 12 and number_of_images != math.floor(self.fps * self.duration):
                     time.sleep(5)
                     cnt += 1
-                    number_of_images = len(list(pathlib.Path(f'cam_{i}').glob('*.png')))
+                    number_of_images = len(list(pathlib.Path(f'cam_{i}_{self.start}').glob('*.png')))
                     print(f"cam_{i} has {number_of_images} images")
                 
 
